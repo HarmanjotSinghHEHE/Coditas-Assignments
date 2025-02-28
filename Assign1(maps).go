@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type Person struct { 																			 //now creating a structure named person
-	Index  int
+	Index  int 
 	Name   string
 	Age    int
 	Gender string
@@ -13,8 +13,8 @@ type Person struct { 																			 //now creating a structure named person
 //some method reciever are called as pointers where i need to change or modify the original slice content. (p *person)
 //where as for processes like introduce or check vote person object is directly called. (p person)
 
-type Persons []Person 																			 // A slice to store multiple persons
-
+//type Persons []Person 																			 // A slice to store multiple persons
+type Persons map[string]Person
 func (p *Persons) AddNewPerson(name string, age int, gender string, email string, phNo int64) {
 
 	// Conditions to handle edge cases where name or age or Phone no is invalid
@@ -30,6 +30,10 @@ func (p *Persons) AddNewPerson(name string, age int, gender string, email string
 		fmt.Println("Enter a Valid Phone No ")
 		return
 	}
+	//now checking if the map is empty
+	if *p == nil {
+        *p = make(map[string]Person)
+    }
 
 	ind := len(*p) + 1 																			 // +1 to len of *p to start with index 1
 	newPerson := Person{
@@ -71,16 +75,19 @@ func (p *Persons) UpdateName() { 																// Method to update a person's 
 	fmt.Println("\nEnter the new Name")
 	fmt.Scanln(&nn)
 
-	for i, person := range *p {
-		if person.Name == nm {
-			fmt.Println("Person found and name will be updated")
-			(*p)[i].Name = nn
-			found = true
+	if person , exists:=(*p)[nm]; exists {
+		if _,newExists:=(*p)[nn]; newExists && nn!= nm{
+			fmt.Println("A person with that name exists")
+			return
 		}
-	}
-	if !found {
-		fmt.Println("\n404 Not Found")
-	}
+
+		delete(*p , nm)
+		person.Name=nn
+		(*p)[nn]=person
+		fmt.Println("Person found and Updated")
+	} else {
+		fmt.Println("404 Not found")
+		}
 }
 
 func (p *Persons) UpdateAge() { 																// Method to update a person's age
