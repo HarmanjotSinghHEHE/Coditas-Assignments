@@ -1,23 +1,26 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"		//FOR CHECKING IF THE EMAIL IS VALID 
+)
 
-type Person struct { 																			 //now creating a structure named person
-	Index  int 
+type Person struct {
+	Index  int // Unique identifier as map key
 	Name   string
 	Age    int
 	Gender string
 	Email  string
 	Ph_No  int64
 }
-//some method reciever are called as pointers where i need to change or modify the original slice content. (p *person)
-//where as for processes like introduce or check vote person object is directly called. (p person)
 
-//type Persons []Person 																			 // A slice to store multiple persons
-type Persons map[string]Person
+type Persons map[int]Person 	//WE WILL USE INDEX AS THE KEY
+
 func (p *Persons) AddNewPerson(name string, age int, gender string, email string, phNo int64) {
+	// DEFINING EMAIL PATTERN
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 
-	// Conditions to handle edge cases where name or age or Phone no is invalid
+	// Input validation
 	if name == "" {
 		fmt.Println("Name Can Not be Empty\n")
 		return
@@ -30,22 +33,29 @@ func (p *Persons) AddNewPerson(name string, age int, gender string, email string
 		fmt.Println("Enter a Valid Phone No ")
 		return
 	}
-	//now checking if the map is empty
-	if *p == nil {
-        *p = make(map[string]Person)
-    }
+	// FOR CHECKING IF THE EMAIL ENTERED IS CORRECT OR NOT
+	if !emailRegex.MatchString(email) {
+		fmt.Println("Invalid Email Format")
+		return
+	}
 
-	ind := len(*p) + 1 																			 // +1 to len of *p to start with index 1
+	if *p == nil {
+		*p = make(map[int]Person)
+	}
+
+	index := len(*p) + 1 // THIS GENERATES NEXT RATE
+
 	newPerson := Person{
-		Index:  ind,
+		Index:  index,
 		Name:   name,
 		Age:    age,
 		Gender: gender,
 		Email:  email,
 		Ph_No:  phNo,
 	}
-	*p = append(*p, newPerson)
-	fmt.Println("Person added")
+
+	(*p)[index] = newPerson
+	fmt.Printf("Person added with Index: %d\n", index)
 }
 
 func (p Persons) Introduce() {
@@ -53,81 +63,76 @@ func (p Persons) Introduce() {
 		fmt.Println("No Entries To Show")
 		return
 	}
+
 	for _, person := range p {
 		fmt.Printf(
 			"Index: %d || Name: %s || Age: %d || Gender: %s || Email: %s || Phone Number: %d\n",
-			person.Index, 																		 // Index
-			person.Name,   																		 // field stores the name data
-			person.Age,    																		 // storing the age
-			person.Gender, 																		 // storing gender
-			person.Email,  																		 // stores email addresses
-			person.Ph_No,  																		 // stores phone numbers
+			person.Index,
+			person.Name,
+			person.Age,
+			person.Gender,
+			person.Email,
+			person.Ph_No,
 		)
 	}
 }
 
-func (p *Persons) UpdateName() { 																// Method to update a person's name
-	var nm string 																				// to take the name from the user, whose name to be changed
-	var nn string 																				// to store new name and update it in the slice
-	found := false
-	fmt.Println("\nEnter the Name you want to update")
-	fmt.Scanln(&nm)
+func (p *Persons) UpdateName() {
+	var index int
+	var newName string
+	fmt.Println("\nEnter the Index of the person whose name you want to update")
+	fmt.Scanln(&index)
 	fmt.Println("\nEnter the new Name")
-	fmt.Scanln(&nn)
+	fmt.Scanln(&newName)
 
-	if person , exists:=(*p)[nm]; exists {
-		if _,newExists:=(*p)[nn]; newExists && nn!= nm{
-			fmt.Println("A person with that name exists")
+	if person, exists := (*p)[index]; exists {
+		if newName == "" {
+			fmt.Println("Name Can Not be Empty")
 			return
 		}
-
-		delete(*p , nm)
-		person.Name=nn
-		(*p)[nn]=person
-		fmt.Println("Person found and Updated")
+		person.Name = newName
+		(*p)[index] = person
+		fmt.Println("Name updated successfully")
 	} else {
-		fmt.Println("404 Not found")
-		}
-}
-
-func (p *Persons) UpdateAge() { 																// Method to update a person's age
-	var nn string  																				// to take the name from the user, whose age you want to change
-	var newAge int 																				// to store the new age to update it in the slice
-	found := false																				//flag to check if person is found
-	fmt.Println("\nEnter the person's name for who you want to update the Age")
-	fmt.Scanln(&nn)
-	fmt.Println("\nEnter the person's new Age")
-	fmt.Scanln(&newAge)
-
-	for i, person := range *p {
-		if person.Name == nn {
-			(*p)[i].Age = newAge
-			found = true
-		}
-	}
-	if !found {
 		fmt.Println("\n404 Not Found")
 	}
 }
 
-func (p Persons) CheckVote() { 																	// Method to check voting eligibility
-	var nn string  																				// to input the name for which you want to check if age > 18
-	found := false 																				// flag if person not found
-	fmt.Println("\nEnter the person's name for who you want to check if he is eligible")
-	fmt.Scanln(&nn)
-	for _, person := range p {
-		if person.Name == nn {
-			found = true
-			if person.Age >= 18 {
-				fmt.Println("\nEligible for Voting")
-			} else {
-				fmt.Println("\nNot Eligible")
-			}
-			break 																				// Breaking the loop after checking
+func (p *Persons) UpdateAge() {
+	var index int
+	var newAge int
+	fmt.Println("\nEnter the Index of the person whose Age you want to update")
+	fmt.Scanln(&index)
+	fmt.Println("\nEnter the person's new Age")
+	fmt.Scanln(&newAge)
+
+	if person, exists := (*p)[index]; exists {
+		if newAge <= 0 {
+			fmt.Println("Age Cannot be less than Zero")
+			return
 		}
+
+		person.Age = newAge
+		(*p)[index] = person
+		fmt.Println("Age updated successfully")
+	} else {
+		fmt.Println("\n404 Not Found")
 	}
-	if !found {
-		fmt.Println("\n404 Name Not Found")
+}
+
+func (p Persons) CheckVote() {
+	var index int
+	fmt.Println("\nEnter the Index of the person to check voting eligibility")
+	fmt.Scanln(&index)
+
+	if person, exists := p[index]; exists {
+		if person.Age >= 18 {
+			fmt.Println("\nEligible for Voting")
+		} else {
+			fmt.Println("\nNot Eligible")
+		}
+	} else {
+		fmt.Println("\n404 Not Found")
 	}
 }
 
@@ -152,7 +157,7 @@ func main() {
 		fmt.Println("====================> 5. Check Voting Eligibility")
 		fmt.Println("=======================> 6. Exit")
 		fmt.Println("************************************************************Enter your choice index number*****************************************************************")
-		fmt.Scanln(&key) 																		// for user input of the switch
+		fmt.Scanln(&key)
 
 		switch key {
 		case 1:
@@ -182,7 +187,7 @@ func main() {
 			fmt.Println("Invalid choice. Please enter a valid option (1-6).")
 		}
 
-		fmt.Println("\nPress Enter to continue...")
+		fmt.Println("\nPress Enter to continue")
 		fmt.Scanln()
 	}
 }
