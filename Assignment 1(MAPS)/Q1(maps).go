@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"regexp"		//FOR CHECKING IF THE EMAIL IS VALID 
+	"regexp"		
 )
 
 type Person struct {
