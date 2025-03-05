@@ -225,7 +225,7 @@ func main() {
 			fmt.Println("Invalid choice. Please enter a valid option (1-6).")
 		}
 
-		fmt.Println("\nPress Enter to continue...")
+		fmt.Println("\nPress Enter to continue....")
 		fmt.Scanln()
 	}
 }
